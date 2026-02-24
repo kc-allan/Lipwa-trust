@@ -10,8 +10,7 @@ fake = Faker()
 # --- Utility Functions ---
 
 def print_response(title: str, response: httpx.Response):
-    print(f"
---- {title} ---")
+    print(f"--- {title} ---")
     print(f"Status Code: {response.status_code}")
     try:
         print("Response JSON:", json.dumps(response.json(), indent=2))
@@ -19,8 +18,7 @@ def print_response(title: str, response: httpx.Response):
         print("Response Text:", response.text)
 
 def register_user(client: httpx.Client, email: str, password: str, is_merchant: bool = False, is_supplier: bool = False):
-    print(f"
-Registering user: {email} (merchant: {is_merchant}, supplier: {is_supplier})")
+    print(f"Registering user: {email} (merchant: {is_merchant}, supplier: {is_supplier})")
     response = client.post(
         f"{BASE_URL}/auth/register",
         json={"email": email, "password": password, "is_merchant": is_merchant, "is_supplier": is_supplier}
@@ -30,8 +28,7 @@ Registering user: {email} (merchant: {is_merchant}, supplier: {is_supplier})")
     return response.json()
 
 def login_user(client: httpx.Client, email: str, password: str):
-    print(f"
-Logging in user: {email}")
+    print(f"Logging in user: {email}")
     response = client.post(
         f"{BASE_URL}/auth/login",
         data={"username": email, "password": password}
@@ -57,8 +54,7 @@ def generate_merchant_data():
     }
 
 def onboard_merchant(client: httpx.Client, merchant_data: Dict):
-    print("
-Onboarding merchant")
+    print("Onboarding merchant")
     response = client.post(
         f"{BASE_URL}/merchants/onboard",
         json=merchant_data
@@ -76,8 +72,7 @@ def generate_supplier_data():
     }
 
 def onboard_supplier(client: httpx.Client, supplier_data: Dict):
-    print("
-Onboarding supplier")
+    print("Onboarding supplier")
     response = client.post(
         f"{BASE_URL}/suppliers/onboard",
         json=supplier_data
@@ -87,32 +82,28 @@ Onboarding supplier")
     return response.json()
 
 def get_merchant_score(client: httpx.Client):
-    print("
-Getting merchant's score")
+    print("Getting merchant's score")
     response = client.get(f"{BASE_URL}/merchant/me/score")
     print_response("Get Merchant Score", response)
     response.raise_for_status()
     return response.json()
 
 def get_merchant_dashboard(client: httpx.Client):
-    print("
-Getting merchant's dashboard")
+    print("Getting merchant's dashboard")
     response = client.get(f"{BASE_URL}/merchant/me/dashboard")
     print_response("Get Merchant Dashboard", response)
     response.raise_for_status()
     return response.json()
 
 def simulate_daily_sales(client: httpx.Client):
-    print("
-Simulating daily sales for merchant")
+    print("Simulating daily sales for merchant")
     response = client.post(f"{BASE_URL}/merchant/me/simulate_daily_sales")
     print_response("Simulate Daily Sales", response)
     response.raise_for_status()
     return response.json()
 
 def apply_for_credit(client: httpx.Client, amount_requested: float):
-    print(f"
-Applying for credit: {amount_requested}")
+    print(f"Applying for credit: {amount_requested}")
     response = client.post(
         f"{BASE_URL}/credit/apply",
         json={"amount_requested": amount_requested}
@@ -122,8 +113,7 @@ Applying for credit: {amount_requested}")
     return response.json()
 
 def record_repayment(client: httpx.Client, contract_id: int, amount: float):
-    print(f"
-Recording repayment for contract {contract_id}, amount {amount}")
+    print(f"Recording repayment for contract {contract_id}, amount {amount}")
     response = client.post(
         f"{BASE_URL}/repayment/settle",
         json={"contract_id": contract_id, "amount": amount}
@@ -133,16 +123,14 @@ Recording repayment for contract {contract_id}, amount {amount}")
     return response.json()
 
 def get_supplier_me(client: httpx.Client):
-    print("
-Getting supplier's details")
+    print("Getting supplier's details")
     response = client.get(f"{BASE_URL}/supplier/me")
     print_response("Get Supplier Me", response)
     response.raise_for_status()
     return response.json()
 
 def get_all_suppliers(client: httpx.Client):
-    print("
-Getting all suppliers (as active user)")
+    print("Getting all suppliers (as active user)")
     response = client.get(f"{BASE_URL}/suppliers")
     print_response("Get All Suppliers", response)
     response.raise_for_status()
@@ -150,8 +138,7 @@ Getting all suppliers (as active user)")
 
 # --- Test Orchestration ---
 def run_tests():
-    print("Starting API Integration Tests...
-")
+    print("Starting API Integration Tests...")
     merchant_users_info = []
     supplier_users_info = []
 
@@ -170,34 +157,29 @@ def run_tests():
             supplier_users_info.append({"email": email, "password": password, "client": httpx.Client(base_url=BASE_URL)})
         
         # Test 2: Login and Onboard Merchants
-        print("
-### Phase 2: Login and Onboard Merchants ###")
+        print("### Phase 2: Login and Onboard Merchants ###")
         for user_info in merchant_users_info:
             login_user(user_info["client"], user_info["email"], user_info["password"])
             merchant_profile = onboard_merchant(user_info["client"], generate_merchant_data())
             user_info["merchant_profile"] = merchant_profile # Store profile for later use
 
         # Test 3: Login and Onboard Suppliers
-        print("
-### Phase 3: Login and Onboard Suppliers ###")
+        print("### Phase 3: Login and Onboard Suppliers ###")
         for user_info in supplier_users_info:
             login_user(user_info["client"], user_info["email"], user_info["password"])
             supplier_profile = onboard_supplier(user_info["client"], generate_supplier_data())
             user_info["supplier_profile"] = supplier_profile # Store profile for later use
         
         # Test 4: Merchant Specific Endpoints
-        print("
-### Phase 4: Merchant Specific Endpoints ###")
+        print("### Phase 4: Merchant Specific Endpoints ###")
         for i, user_info in enumerate(merchant_users_info):
-            print(f"
---- Testing Merchant {i+1} ({user_info['email']}) ---")
+            print(f"--- Testing Merchant {i+1} ({user_info['email']}) ---")
             
             get_merchant_score(user_info["client"])
             get_merchant_dashboard(user_info["client"])
 
             # Simulate sales multiple times to see score change
-            print("
-Simulating sales to change trust score...")
+            print("Simulating sales to change trust score...")
             for _ in range(3):
                 simulate_daily_sales(user_info["client"])
                 
@@ -216,39 +198,31 @@ Simulating sales to change trust score...")
             get_merchant_dashboard(user_info["client"]) # Check updated dashboard
 
         # Test 5: Supplier Specific Endpoints
-        print("
-### Phase 5: Supplier Specific Endpoints ###")
+        print("### Phase 5: Supplier Specific Endpoints ###")
         for i, user_info in enumerate(supplier_users_info):
-            print(f"
---- Testing Supplier {i+1} ({user_info['email']}) ---")
+            print(f"--- Testing Supplier {i+1} ({user_info['email']}) ---")
             get_supplier_me(user_info["client"])
         
         # Test 6: General Endpoints (accessible by any active user)
-        print("
-### Phase 6: General Endpoints ###")
+        print("### Phase 6: General Endpoints ###")
         # Use first merchant client to test
-        print(f"
---- Testing GET /suppliers as {merchant_users_info[0]['email']} ---")
+        print(f"--- Testing GET /suppliers as {merchant_users_info[0]['email']} ---")
         get_all_suppliers(merchant_users_info[0]["client"])
 
         # Test 7: Unauthorized Access (example)
-        print("
-### Phase 7: Unauthorized Access Tests ###")
+        print("### Phase 7: Unauthorized Access Tests ###")
         unauth_client = httpx.Client(base_url=BASE_URL)
-        print("
-Attempting to access /merchant/me/dashboard without login:")
+        print("Attempting to access /merchant/me/dashboard without login:")
         response = unauth_client.get(f"{BASE_URL}/merchant/me/dashboard")
         print_response("Unauthorized Dashboard Access", response)
         assert response.status_code == 401
 
-        print("
-Attempting to access /supplier/me as a merchant:")
+        print("Attempting to access /supplier/me as a merchant:")
         response = merchant_users_info[0]["client"].get(f"{BASE_URL}/supplier/me")
         print_response("Merchant Accessing Supplier Me", response)
         assert response.status_code == 403
 
-    print("
-API Integration Tests Finished.")
+    print("API Integration Tests Finished.")
 
 if __name__ == "__main__":
     run_tests()
