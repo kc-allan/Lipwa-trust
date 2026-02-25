@@ -38,6 +38,9 @@ def update_merchant_sales_and_score(db: Session, merchant: Merchant):
     Simulates a day's sales for a merchant, updates their metrics,
     and recalculates their trust score and credit limit.
     """
+    # Merge the merchant object into the current session to avoid session conflicts
+    merchant = db.merge(merchant)
+    
     # Simulate a small variation in sales and consistency
     merchant.avg_daily_sales = max(100.0, merchant.avg_daily_sales * random.uniform(0.9, 1.1))
     merchant.consistency = max(0.1, min(0.99, merchant.consistency * random.uniform(0.95, 1.05)))

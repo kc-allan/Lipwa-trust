@@ -10,6 +10,7 @@ class SupplierBase(BaseModel):
     contact_person: str
     phone_number: str
     email: Optional[str] = None
+    product_category: Optional[str] = None # Category of products/services supplied
 
 class SupplierCreate(SupplierBase):
     supplier_id: Optional[str] = None # Make supplier_id optional for creation

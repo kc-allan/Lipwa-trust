@@ -61,6 +61,7 @@ class Contract(Base):
     id = Column(Integer, primary_key=True, index=True)
     merchant_db_id = Column(Integer, ForeignKey("merchants.id"), nullable=False)
     merchant_id = Column(String, nullable=False, index=True) # Redundant but useful for direct lookup
+    supplier_db_id = Column(Integer, ForeignKey("suppliers.id"), nullable=True) # Link to supplier (optional initially)
     
     amount_requested = Column(Float, nullable=False)
     amount_approved = Column(Float, nullable=True)
@@ -74,6 +75,7 @@ class Contract(Base):
     total_repaid = Column(Float, default=0.0, nullable=False)
     
     merchant = relationship("Merchant", back_populates="contracts")
+    supplier = relationship("Supplier", back_populates="contracts") # Added relationship
     repayments = relationship("Repayment", back_populates="contract") # Added relationship
 
 class Supplier(Base):
@@ -85,11 +87,14 @@ class Supplier(Base):
     contact_person = Column(String)
     phone_number = Column(String)
     email = Column(String, nullable=True)
+    product_category = Column(String, nullable=True) # Category of products/services supplied (e.g., "Wholesale Groceries", "Electronics")
     
     user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=True) # Link to User
     user = relationship("User", back_populates="supplier_profile") # Relationship
     
     onboarded_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    contracts = relationship("Contract", back_populates="supplier") # Relationship to contracts
 
 class Repayment(Base):
     __tablename__ = "repayments"

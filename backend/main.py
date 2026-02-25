@@ -8,7 +8,7 @@ import random # Needed for generating merchant/supplier IDs
 
 from trust_score_engine import calculate_trust_score
 from db.session import SessionLocal, engine
-from db.base import Base, Contract, User # Import User model to use its relationships
+from db.base import Base, Contract, User, ContractStatus # Import User model to use its relationships
 from models.merchant import MerchantCreate, MerchantDB, TrustScoreResponse, MerchantDashboard
 from models.contract import CreditApplicationRequest, ContractDB
 from models.supplier import SupplierCreate, SupplierDB
@@ -128,7 +128,9 @@ async def onboard_merchant(
         generated_merchant_id = f"MER-{random.randint(10000, 99999)}"
 
     # Create a temporary MerchantCreate object with generated merchant_id
-    temp_merchant_create = MerchantCreate(merchant_id=generated_merchant_id, **merchant_data.model_dump())
+    merchant_data_dict = merchant_data.model_dump()
+    merchant_data_dict.pop('merchant_id', None)  # Remove merchant_id if it exists to avoid duplicate keyword argument
+    temp_merchant_create = MerchantCreate(merchant_id=generated_merchant_id, **merchant_data_dict)
 
     score_data = calculate_trust_score(
         merchant_data.avg_daily_sales,
@@ -244,7 +246,8 @@ async def apply_for_credit(
         contract=request,
         amount_approved=amount_approved,
         merchant_db_id=merchant.id,
-        merchant_id=merchant.merchant_id # Pass merchant_id explicitly for contract record
+        merchant_id=merchant.merchant_id,
+        supplier_db_id=request.supplier_db_id if hasattr(request, 'supplier_db_id') else None
     )
     return new_contract
 
@@ -275,9 +278,9 @@ async def record_repayment(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Repayment amount must be positive.")
 
     # Prevent over-repayment or repayment on settled/rejected contracts (simple MVP logic)
-    if contract.status == Contract.ContractStatus.SETTLED.value:
+    if contract.status == ContractStatus.SETTLED.value:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Contract is already settled.")
-    if contract.status == Contract.ContractStatus.REJECTED.value:
+    if contract.status == ContractStatus.REJECTED.value:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Contract was rejected.")
     
     # If amount repaid exceeds remaining balance, cap it (simple MVP logic)
@@ -311,7 +314,9 @@ async def onboard_supplier(
         generated_supplier_id = f"SUP-{random.randint(1000, 9999)}"
 
     # Create a temporary SupplierCreate object with generated supplier_id
-    temp_supplier_create = SupplierCreate(supplier_id=generated_supplier_id, **supplier_data.model_dump())
+    supplier_data_dict = supplier_data.model_dump()
+    supplier_data_dict.pop('supplier_id', None)  # Remove supplier_id if it exists to avoid duplicate keyword argument
+    temp_supplier_create = SupplierCreate(supplier_id=generated_supplier_id, **supplier_data_dict)
 
     new_supplier = crud_supplier.create_supplier(
         db=db,
@@ -336,6 +341,39 @@ async def get_my_supplier_details(
     if not supplier:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Supplier profile not found for this user.")
     return supplier
+
+
+@app.get("/supplier/me/contracts", response_model=List[ContractDB], summary="Get all contracts for logged-in supplier")
+async def get_my_supplier_contracts(
+    current_user: User = Depends(get_current_supplier_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Retrieves all contracts (both active and completed) for the logged-in supplier.
+    """
+    supplier = current_user.supplier_profile
+    if not supplier:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Supplier profile not found for this user.")
+    
+    contracts = crud_contract.get_contracts_by_supplier_id(db, supplier.id)
+    return contracts
+
+
+@app.get("/supplier/me/contracts/active", response_model=List[ContractDB], summary="Get active contracts for logged-in supplier")
+async def get_my_supplier_active_contracts(
+    current_user: User = Depends(get_current_supplier_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Retrieves only active (ongoing) contracts for the logged-in supplier.
+    Active means not settled or rejected.
+    """
+    supplier = current_user.supplier_profile
+    if not supplier:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Supplier profile not found for this user.")
+    
+    active_contracts = crud_contract.get_active_contracts_for_supplier(db, supplier.id)
+    return active_contracts
 
 
 @app.get("/suppliers", response_model=List[SupplierDB], summary="Get a list of all suppliers (active user access)")

@@ -5,10 +5,12 @@ from db.base import ContractStatus
 
 class CreditApplicationRequest(BaseModel):
     amount_requested: float
+    supplier_db_id: Optional[int] = None # Optional supplier reference
 
 class ContractBase(BaseModel):
     merchant_id: str
     amount_requested: float
+    supplier_db_id: Optional[int] = None # Optional supplier reference
     status: ContractStatus = ContractStatus.PENDING
 
 class ContractCreate(CreditApplicationRequest):
