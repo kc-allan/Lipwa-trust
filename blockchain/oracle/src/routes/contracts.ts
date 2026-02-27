@@ -172,6 +172,7 @@ contractsRouter.post("/:id/cancel", async (req, res) => {
 contractsRouter.get("/:id/status", async (req, res) => {
   try {
     const state = await getContractState(req.params.id);
+    console.log("Contract state:", state);
     return res.json({
       contractId: state.contractId,
       status: state.status,
@@ -181,6 +182,7 @@ contractsRouter.get("/:id/status", async (req, res) => {
       raw: state.raw,
     });
   } catch (error) {
+    console.log(error)
     const statusCode = error instanceof AppError ? error.statusCode : 500;
     return res.status(statusCode).json({ error: asErrorMessage(error) });
   }
@@ -191,6 +193,7 @@ contractsRouter.get("/:id/events", async (req, res) => {
     const events = await getContractEvents(req.params.id);
     return res.json(events);
   } catch (error) {
+    console.log("Contract events error:", error);
     const statusCode = error instanceof AppError ? error.statusCode : 500;
     return res.status(statusCode).json({ error: asErrorMessage(error) });
   }

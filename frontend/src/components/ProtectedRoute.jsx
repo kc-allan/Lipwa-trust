@@ -15,9 +15,14 @@ export default function ProtectedRoute({ children, role }) {
 
   if (!user) return <Navigate to="/login" />;
 
-  if (role === "MERCHANT" && !user.is_merchant) return <Navigate to="/" />;
-  if (role === "SUPPLIER" && !user.is_supplier) return <Navigate to="/" />;
+  // No role required (e.g. onboarding page) — any logged-in user can access
+  if (!role) return children;
+
+  if (role === "MERCHANT" && !user.is_merchant) return <Navigate to="/onboard" />;
+  if (role === "SUPPLIER" && !user.is_supplier) return <Navigate to="/onboard" />;
   if (role === "ADMIN" && (user.is_merchant || user.is_supplier)) return <Navigate to="/" />;
+  // Admin: roleless users should go to onboarding, not admin
+  if (role === "ADMIN" && !user.is_merchant && !user.is_supplier) return <Navigate to="/onboard" />;
 
   return children;
 }

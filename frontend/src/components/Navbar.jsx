@@ -19,7 +19,7 @@ export default function Navbar() {
     ? [{ to: "/merchant", label: "Dashboard" }]
     : user?.is_supplier
     ? [{ to: "/supplier", label: "Dashboard" }]
-    : [{ to: "/admin", label: "Overview" }];
+    : [{ to: "/onboard", label: "Get Started" }];
 
   return (
     <nav className="navbar">

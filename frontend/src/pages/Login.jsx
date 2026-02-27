@@ -24,7 +24,7 @@ export default function Login() {
 
       if (user.is_merchant) navigate("/merchant");
       else if (user.is_supplier) navigate("/supplier");
-      else navigate("/admin");
+      else navigate("/onboard");
     } catch (err) {
       console.error(err);
       setError("Invalid email or password. Please try again.");

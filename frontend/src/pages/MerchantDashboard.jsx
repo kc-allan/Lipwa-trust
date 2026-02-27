@@ -304,7 +304,7 @@ export default function MerchantDashboard() {
               <div className="supplier-grid">
                 {suppliers.map(s => (
                   <div key={s.id} className="supplier-card">
-                    <div className="supplier-avatar">{s.name[0].toUpperCase()}</div>
+                    <div className="supplier-avatar">{s?.name[0]?.toUpperCase()}</div>
                     <div className="supplier-info">
                       <h4 className="supplier-name">{s.name}</h4>
                       <p className="supplier-category">{s.product_category || "General Supplies"}</p>

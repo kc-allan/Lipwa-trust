@@ -4,6 +4,7 @@ import Register from "./pages/Register";
 import MerchantDashboard from "./pages/MerchantDashboard";
 import SupplierDashboard from "./pages/SupplierDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import Onboarding from "./pages/Onboarding";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Landing from "./pages/Landing";
 
@@ -14,6 +15,15 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        <Route
+          path="/onboard"
+          element={
+            <ProtectedRoute>
+              <Onboarding />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/merchant"

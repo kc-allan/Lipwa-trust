@@ -7,8 +7,6 @@ export default function Register() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isMerchant, setIsMerchant] = useState(false);
-  const [isSupplier, setIsSupplier] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -18,10 +16,17 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await registerUser({ email, password, is_merchant: isMerchant, is_supplier: isSupplier });
+      await registerUser({
+        email,
+        password,
+        is_merchant: false,
+        is_supplier: false,
+      });
       navigate("/login");
     } catch (err) {
-      setError(err.response?.data?.detail || "Registration failed. Please try again.");
+      setError(
+        err.response?.data?.detail || "Registration failed. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -30,7 +35,9 @@ export default function Register() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <Link to="/" className="auth-logo">⬡ Lipwa Trust</Link>
+        <Link to="/" className="auth-logo">
+          ⬡ Lipwa Trust
+        </Link>
         <h2>Create account</h2>
         <p className="auth-sub">Join Lipwa Trust to access credit financing</p>
 
@@ -48,7 +55,7 @@ export default function Register() {
             />
           </div>
 
-          <div className="form-group">
+          <div className="form-group" style={{ marginBottom: "24px" }}>
             <label>Password</label>
             <input
               type="password"
@@ -57,31 +64,6 @@ export default function Register() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-          </div>
-
-          <div className="divider" />
-
-          <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 500 }}>
-            I am registering as
-          </p>
-
-          <div className="checkbox-group">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={isMerchant}
-                onChange={(e) => setIsMerchant(e.target.checked)}
-              />
-              🏪 Merchant — I want to apply for credit
-            </label>
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={isSupplier}
-                onChange={(e) => setIsSupplier(e.target.checked)}
-              />
-              🏭 Supplier — I supply goods to merchants
-            </label>
           </div>
 
           <button type="submit" className="auth-btn" disabled={loading}>

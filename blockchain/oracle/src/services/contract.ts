@@ -57,6 +57,13 @@ function normalizeState(value: unknown): Record<string, unknown> {
 }
 
 function normalizeStatus(status: unknown): string {
+  if (Array.isArray(status)) {
+    if (status.length === 0) {
+      return "Unknown";
+    }
+    return normalizeStatus(status[0]);
+  }
+
   if (typeof status === "string") {
     return status;
   }
@@ -83,6 +90,33 @@ function normalizeStatus(status: unknown): string {
   }
 
   return "Unknown";
+}
+
+function toJsonSafe(value: unknown): unknown {
+  if (typeof value === "bigint") {
+    return value.toString();
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => toJsonSafe(item));
+  }
+
+  if (value instanceof Map) {
+    return Object.fromEntries(
+      Array.from(value.entries(), ([key, mapValue]) => [String(key), toJsonSafe(mapValue)]),
+    );
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, objectValue]) => [
+        key,
+        toJsonSafe(objectValue),
+      ]),
+    );
+  }
+
+  return value;
 }
 
 function toNumber(value: unknown): number {
@@ -255,8 +289,8 @@ export async function getContractState(contractId: string): Promise<{
     throw new AppError(`[CONTRACT] Could not fetch state for ${contractId}`, 500);
   }
 
-  const raw = sdk.scValToNative(retval);
-  const state = normalizeState(raw);
+  const nativeRaw = sdk.scValToNative(retval);
+  const state = normalizeState(nativeRaw);
 
   const amount = toNumber(state.amount);
   const repaid = toNumber(state.repaid);
@@ -268,7 +302,7 @@ export async function getContractState(contractId: string): Promise<{
     amount,
     repaid,
     escrowBalance,
-    raw,
+    raw: toJsonSafe(nativeRaw),
   };
 }
 

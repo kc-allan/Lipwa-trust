@@ -17,6 +17,10 @@ export const loginUser = (email, password) => {
 export const registerUser   = (data) => api.post("/auth/register", data);
 export const getCurrentUser = ()     => api.get("/auth/me");
 
+// --- ONBOARDING ---
+export const onboardMerchant = (data) => api.post("/merchants/onboard", data);
+export const onboardSupplier = (data) => api.post("/suppliers/onboard", data);
+
 // --- MERCHANT ---
 export const getMerchantDashboard = ()     => api.get("/merchant/me/dashboard");
 export const applyCredit          = (data) => api.post("/credit/apply", data);

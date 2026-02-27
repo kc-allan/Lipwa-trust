@@ -1,2 +1,11 @@
 .vscode/
-*__pycache__/*
+*/__pycache__/*
+venv
+*.pyc
+*.pyo
+*.pyd
+*.swp
+*.swo
+*.db
+*.sqlite3
+*.log

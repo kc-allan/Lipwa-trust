@@ -1,0 +1,264 @@
+.onboard-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.onboard-page::before {
+  content: "";
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: var(--gold);
+  filter: blur(200px);
+  opacity: 0.05;
+  top: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.onboard-card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Step indicator ─────────────────── */
+.onboard-steps {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  border: 2px solid var(--border);
+  color: var(--text-muted);
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.step-dot.active {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: #0d0f14;
+}
+
+.step-dot.done {
+  border-color: var(--green);
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--green);
+}
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  transition: background 0.3s ease;
+}
+
+.step-line.active {
+  background: var(--gold);
+}
+
+/* ── Heading ────────────────────────── */
+.onboard-card h2 {
+  font-size: 26px;
+  margin-bottom: 6px;
+}
+
+.onboard-sub {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+
+/* ── Role cards ─────────────────────── */
+.role-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.role-card {
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 20px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.25s ease;
+}
+
+.role-card:hover {
+  border-color: var(--gold-dim);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.role-card.selected {
+  border-color: var(--gold);
+  background: var(--gold-dim);
+}
+
+.role-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.role-title {
+  font-family: "DM Serif Display", serif;
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.role-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ── Form ───────────────────────────── */
+.onboard-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.onboard-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.onboard-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+.onboard-form .form-group label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.onboard-form .form-group input,
+.onboard-form .form-group select {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 11px 14px;
+  color: var(--text);
+  font-size: 14px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  outline: none;
+}
+
+.onboard-form .form-group input:focus,
+.onboard-form .form-group select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-dim);
+}
+
+.onboard-form .form-group select {
+  appearance: none;
+  cursor: pointer;
+}
+
+/* ── Buttons ────────────────────────── */
+.onboard-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.onboard-btn {
+  flex: 1;
+  padding: 13px 20px;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.onboard-btn.primary {
+  background: var(--gold);
+  color: #0d0f14;
+}
+
+.onboard-btn.primary:hover {
+  background: var(--gold-light);
+  transform: translateY(-1px);
+}
+
+.onboard-btn.secondary {
+  background: var(--surface-2);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+
+.onboard-btn.secondary:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.onboard-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Error / Success ────────────────── */
+.onboard-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 13px;
+}
+
+/* ── Responsive ─────────────────────── */
+@media (max-width: 540px) {
+  .onboard-card {
+    padding: 28px 20px;
+  }
+
+  .role-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .onboard-form .form-row {
+    grid-template-columns: 1fr;
+  }
+}

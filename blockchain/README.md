@@ -79,6 +79,18 @@ blockchain/
 
 ---
 
+## Dockerization Advice
+
+For this module, dockerize the **runtime components**:
+
+- **Oracle API** (Express service)
+- **PostgreSQL** (wallet/contract metadata storage)
+
+The **smart contract** is not a long-running service; it is a build/deploy artifact.  
+Keep it as a CLI-driven flow (local or CI), and have the Oracle call an already deployed `INVENTORY_CONTRACT_ID` in day-to-day runs.
+
+---
+
 ## Prerequisites
 
 1. **Rust & Soroban CLI**
@@ -105,6 +117,31 @@ blockchain/
 
 ## Getting Started
 
+### 0. Run Oracle + DB in Docker (recommended local runtime)
+
+```bash
+cd blockchain
+
+# First time only: create oracle env file
+cp oracle/.env.example oracle/.env
+# Edit oracle/.env and set real PLATFORM_SECRET_KEY, KESX_TOKEN_CONTRACT_ID, etc.
+
+# Start oracle + postgres
+docker compose up --build -d
+
+# Logs / stop
+docker compose logs -f oracle
+docker compose down
+```
+
+Notes:
+- Oracle will be available on `http://localhost:3001`
+- Postgres is exposed on `localhost:5433` (container-internal port remains `5432`)
+- In Docker mode, `DATABASE_URL` is automatically set to use the `postgres` service
+- `contracts/` is mounted read-only into the Oracle container at `/contracts`
+- If you want create endpoint to deploy from wasm (instead of using `INVENTORY_CONTRACT_ID`), build contract first so this file exists:
+  `/contracts/inventory_credit/target/wasm32v1-none/release/inventory_credit.wasm`
+
 ### 1. Smart Contract
 
 ```bash
@@ -123,7 +160,7 @@ soroban contract deploy \
   --source <PLATFORM_SECRET_KEY>
 ```
 
-### 2. Oracle API
+### 2. Oracle API (without Docker)
 
 ```bash
 cd blockchain/oracle
@@ -141,7 +178,7 @@ npm run dev
 ```
 
 ### 3. Postman Collection
-Import the provided (Postman Collection)[./oracle/postman/lipwa-trust-oracle.postman_collection.json] and (Postman Environment)[./oracle/postman/lipwa-trust-oracle.postman_environment.json] into Postman to access and test pre-configured requests for all oracle API endpoints, including contract creation, funding, state transitions, and event queries.
+Import the provided [Postman Collection](./oracle/postman/lipwa-trust-oracle.postman_collection.json) and [Postman Environment](./oracle/postman/lipwa-trust-oracle.postman_environment.json) into Postman to access and test pre-configured requests for all oracle API endpoints, including contract creation, funding, state transitions, and event queries.
 
 ### 4. Test Asset Setup
 

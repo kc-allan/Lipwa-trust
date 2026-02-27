@@ -6,6 +6,7 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError, ExpiredSignatureError
 
 from core.config import settings
+import bcrypt
 
 
 # ----------------------------
@@ -27,13 +28,13 @@ def _pre_hash_password(password: str) -> str:
 
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(_pre_hash_password(password))
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(
-        _pre_hash_password(plain_password),
-        hashed_password
+    return bcrypt.checkpw(
+        plain_password.encode("utf-8"),
+        hashed_password.encode("utf-8")
     )
 
 
